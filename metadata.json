@@ -1,0 +1,5 @@
+{
+  "name": "Dragon Invaders",
+  "description": "A retro arcade space-invaders style game where a knight battles waves of dragons. Features pixel-art graphics and AI-generated lore.",
+  "requestFramePermissions": []
+}

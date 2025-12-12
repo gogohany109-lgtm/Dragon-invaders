@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useCallback } from 'react';
 import { 
   CANVAS_WIDTH, CANVAS_HEIGHT, PLAYER_SPEED, BULLET_SPEED, 
@@ -20,11 +19,17 @@ import {
   SPRITE_DRAGON_FROST_1, SPRITE_DRAGON_FROST_2,
   SPRITE_DRAGON_OBSIDIAN_1, SPRITE_DRAGON_OBSIDIAN_2,
   SPRITE_DRAGON_CRIMSON_1, SPRITE_DRAGON_CRIMSON_2,
+  SPRITE_DRAGON_PHANTOM_1, SPRITE_DRAGON_PHANTOM_2,
+  SPRITE_DRAGON_HIVE_1, SPRITE_DRAGON_HIVE_2,
+  SPRITE_DRAGON_IRONCLAD_1, SPRITE_DRAGON_IRONCLAD_2,
+  SPRITE_DRAGON_CHRONO_1, SPRITE_DRAGON_CHRONO_2,
+  SPRITE_DRAGON_VENOM_1, SPRITE_DRAGON_VENOM_2,
   SPRITE_POWERUP_RAPID, SPRITE_POWERUP_SHIELD, SPRITE_POWERUP_BOMB, 
   SPRITE_POWERUP_SPREAD, SPRITE_POWERUP_LASER, SPRITE_POWERUP_EXPLOSIVE, SPRITE_POWERUP_TIME, SPRITE_POWERUP_LIFE,
   SPRITE_POWERUP_PIERCE, SPRITE_POWERUP_SIDEKICK, SPRITE_POWERUP_INVINCIBILITY, SPRITE_POWERUP_DAMAGE, SPRITE_POWERUP_SCORE,
   COLOR_NEON_BLUE, COLOR_NEON_RED, COLOR_NEON_GREEN, COLOR_NEON_GOLD, COLOR_NEON_PURPLE, COLOR_NEON_CYAN, COLOR_NEON_BROWN, COLOR_NEON_SILVER, COLOR_NEON_SHADOW, COLOR_NEON_ORANGE, COLOR_NEON_EMERALD, COLOR_NEON_AMETHYST,
   COLOR_NEON_FROST, COLOR_NEON_OBSIDIAN, COLOR_NEON_CRIMSON,
+  COLOR_NEON_PHANTOM, COLOR_NEON_HIVE, COLOR_NEON_IRONCLAD, COLOR_NEON_CHRONO, COLOR_NEON_VENOM,
   COLOR_BOSS_MECH, COLOR_BOSS_MECH_DARK, COLOR_BOSS_ELECTRIC, COLOR_BOSS_ELECTRIC_WEB, COLOR_BOSS_HYDRA, COLOR_BOSS_HYDRA_DARK,
   COLOR_BOSS_SORCERER, COLOR_BOSS_SORCERER_DARK, COLOR_LASER_BEAM,
   COLOR_BOSS_METEOR, COLOR_METEOR_FIRE,
@@ -52,7 +57,7 @@ export const GameEngine: React.FC<GameEngineProps> = ({
   gameState, setGameState, gameStats, setGameStats 
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const requestRef = useRef<number>();
+  const requestRef = useRef<number>(0);
   const lastFrameTimeRef = useRef<number>(0);
   const frameCountRef = useRef<number>(0);
   
@@ -286,6 +291,9 @@ export const GameEngine: React.FC<GameEngineProps> = ({
            else if (gameStats.level >= 5 && Math.random() > 0.6) { type = 'dragon-emerald'; health = 2; } 
            else if (gameStats.level >= 6 && Math.random() > 0.5) { type = 'dragon-brown'; health = 2; } 
            else if (gameStats.level >= 3 && Math.random() > 0.5) { type = 'dragon-blue'; }
+           // New Enemies Top Row Mix
+           else if (gameStats.level >= 4 && Math.random() > 0.6) { type = 'dragon-phantom'; health = 2; }
+           else if (gameStats.level >= 2 && Math.random() > 0.7) { type = 'dragon-hive'; health = 1; }
         }
         else if (r === 1) {
            if (gameStats.level >= 8 && Math.random() > 0.75) { type = 'dragon-obsidian'; health = 5; } 
@@ -294,12 +302,16 @@ export const GameEngine: React.FC<GameEngineProps> = ({
            else if (gameStats.level >= 4 && Math.random() > 0.7) { type = 'dragon-silver'; health = 3; } 
            else if (gameStats.level >= 6 && Math.random() > 0.6) { type = 'dragon-brown'; health = 2; } 
            else if (gameStats.level >= 3 && Math.random() > 0.4) { type = 'dragon-blue'; }
+           else if (gameStats.level >= 3 && Math.random() > 0.5) { type = 'dragon-ironclad'; health = 4; }
+           else if (gameStats.level >= 2 && Math.random() > 0.6) { type = 'dragon-chrono'; health = 2; }
            else { type = 'dragon-red'; }
         }
         else if (r < 3) {
             type = 'dragon-red';
             if (gameStats.level >= 6 && Math.random() > 0.8) { type = 'dragon-frost'; health = 2; } 
             else if (gameStats.level >= 8 && Math.random() > 0.9) { type = 'dragon-silver'; health = 3; }
+            else if (gameStats.level >= 4 && Math.random() > 0.85) { type = 'dragon-venom'; health = 2; }
+            else if (gameStats.level >= 2 && Math.random() > 0.9) { type = 'dragon-hive'; health = 1; }
         }
 
         for(let c = 0; c < cols; c++) {
@@ -317,6 +329,7 @@ export const GameEngine: React.FC<GameEngineProps> = ({
             animationFrame: 0,
             health: health,
             maxHealth: health,
+            opacity: 1 // For phantom
           });
         }
       }
@@ -350,7 +363,33 @@ export const GameEngine: React.FC<GameEngineProps> = ({
     }
   }, [gameStats.level, gameState]);
 
-  // ... (useEffect for setup remains same)
+  // --- Main Loop and Input ---
+  
+  useEffect(() => {
+    initStars();
+  }, []);
+
+  useEffect(() => {
+    if (gameState === GameState.START) {
+        initLevel();
+    }
+  }, [gameState, initLevel]);
+
+  // Handle level transitions
+  useEffect(() => {
+    if (gameStats.level !== prevLevelRef.current) {
+        prevLevelRef.current = gameStats.level;
+        initLevel();
+    }
+  }, [gameStats.level, initLevel]);
+  
+  // Sync refs if props change from outside (e.g. pause/resume)
+  useEffect(() => {
+     if (gameState !== prevGameStateRef.current) {
+         prevGameStateRef.current = gameState;
+     }
+  }, [gameState]);
+
 
   const drawSprite = (ctx: CanvasRenderingContext2D, spriteMap: number[][], x: number, y: number, color: string, scale: number = 3) => {
     ctx.fillStyle = color;
@@ -366,7 +405,10 @@ export const GameEngine: React.FC<GameEngineProps> = ({
   const updateLogic = () => {
     if (gameState !== GameState.PLAYING) return;
     
-    // ... (Standard Player/Input/Timer logic remains same)
+    // Update internal stats
+    if (internalStatsRef.current.lives !== gameStats.lives) {
+        // This direction usually doesn't happen unless external reset, but good for safety
+    }
 
     if (keysRef.current['ArrowLeft']) playerRef.current.x = Math.max(0, playerRef.current.x - PLAYER_SPEED);
     if (keysRef.current['ArrowRight']) playerRef.current.x = Math.min(CANVAS_WIDTH - playerRef.current.width, playerRef.current.x + PLAYER_SPEED);
@@ -389,7 +431,7 @@ export const GameEngine: React.FC<GameEngineProps> = ({
     if (playerRef.current.weapon === 'PIERCING') currentMaxCooldown *= 1.2;
 
     if (keysRef.current[' '] && playerRef.current.cooldown <= 0 && playerRef.current.active) {
-       // ... (Player shooting logic remains same)
+       // Fire Projectile
        const pX = playerRef.current.x + playerRef.current.width / 2;
        const pY = playerRef.current.y;
        const spawnBullet = (offsetX: number, offsetY: number, angle: number, type: WeaponType) => {
@@ -446,28 +488,108 @@ export const GameEngine: React.FC<GameEngineProps> = ({
     } else if (shouldUpdateEnemies) {
         const hasBoss = activeEnemies.some(e => e.type.includes('boss'));
         if (hasBoss) {
-            // ... (Boss Logic - kept same for brevity, assuming standard boss logic)
-             const boss = activeEnemies.find(e => e.type.includes('boss'))!;
-             // Boss movement & attacks...
-             const isEnraged = boss.health < boss.maxHealth * 0.5;
-             const moveSpeed = (ENEMY_SPEED_BASE + 2) * (isEnraged ? 1.5 : 1.0);
-             boss.x += moveSpeed * enemyDirectionRef.current;
-             if (boss.x <= 20 || boss.x + boss.width >= CANVAS_WIDTH - 20) {
-                 enemyDirectionRef.current *= -1;
-             }
-             // Simple random fire for bosses if not in special state
-             if (Math.random() < 0.05 && boss.state === 'GRID') {
-                 projectilesRef.current.push({
-                     x: boss.x + boss.width/2, y: boss.y + boss.height, width: 10, height: 10,
-                     dy: BULLET_SPEED, color: COLOR_NEON_RED, isEnemy: true, active: true
-                 });
-             }
+            const boss = activeEnemies.find(e => e.type.includes('boss'))!;
+            
+            // --- BOSS BEHAVIORS ---
+            const isEnraged = boss.health < boss.maxHealth * 0.5;
+            const moveSpeed = (ENEMY_SPEED_BASE + 2) * (isEnraged ? 1.5 : 1.0);
+            
+            boss.x += moveSpeed * enemyDirectionRef.current;
+            if (boss.x <= 20 || boss.x + boss.width >= CANVAS_WIDTH - 20) {
+                enemyDirectionRef.current *= -1;
+            }
+
+            bossAttackTimerRef.current++;
+
+            if (boss.type === 'dragon-chef-boss') {
+                if (bossAttackTimerRef.current > 60) {
+                    const foodColors = [COLOR_FOOD_APPLE, COLOR_FOOD_CARROT, COLOR_FOOD_PUMPKIN, COLOR_FOOD_WATERMELON];
+                    const color = foodColors[Math.floor(Math.random() * foodColors.length)];
+                    projectilesRef.current.push({
+                       x: boss.x + boss.width/2, y: boss.y + boss.height - 20, width: 16, height: 16,
+                       dy: BULLET_SPEED * 0.8, dx: (Math.random() - 0.5) * 4,
+                       color: color, isEnemy: true, active: true 
+                    });
+                    playEnemyShoot();
+                    bossAttackTimerRef.current = 0;
+                }
+            } 
+            else if (boss.type === 'dragon-sorcerer-boss') {
+                if (boss.sorcererLaserState === 'OFF') {
+                   if (bossAttackTimerRef.current > 120) {
+                      boss.sorcererLaserState = 'WARNING';
+                      boss.sorcererLaserTimer = 60;
+                      bossAttackTimerRef.current = 0;
+                   }
+                } else if (boss.sorcererLaserState === 'WARNING') {
+                   boss.sorcererLaserTimer!--;
+                   if (boss.sorcererLaserTimer! <= 0) {
+                       boss.sorcererLaserState = 'FIRING';
+                       boss.sorcererLaserTimer = 60; // Duration of laser
+                       playEnemyShoot();
+                   }
+                } else if (boss.sorcererLaserState === 'FIRING') {
+                   boss.sorcererLaserTimer!--;
+                   // Giant Laser Logic
+                   // Laser is handled in collision/draw, here we just count down
+                   if (boss.sorcererLaserTimer! <= 0) boss.sorcererLaserState = 'OFF';
+                   // Check collision with player explicitly for laser
+                   if (playerRef.current.active && 
+                       playerRef.current.x < boss.x + boss.width/2 + 30 && playerRef.current.x + playerRef.current.width > boss.x + boss.width/2 - 30) {
+                       damagePlayer();
+                   }
+                }
+            }
+            else {
+                // Generic Boss Shoot
+                if (Math.random() < 0.05 && boss.state === 'GRID') {
+                    projectilesRef.current.push({
+                        x: boss.x + boss.width/2, y: boss.y + boss.height, width: 10, height: 10,
+                        dy: BULLET_SPEED, color: COLOR_NEON_RED, isEnemy: true, active: true
+                    });
+                }
+            }
+
         } else if (!hasBoss) {
             if (enemyFireCooldownRef.current > 0) enemyFireCooldownRef.current--;
             let hitEdge = false;
             let lowestEnemyY = 0;
             
+            // --- NEW ENEMY MOVEMENT LOGIC ---
             activeEnemies.forEach(e => {
+                // PHANTOM: Fade in/out and teleport
+                if (e.type === 'dragon-phantom') {
+                    e.opacity = Math.abs(Math.sin(frameCountRef.current / 40));
+                    if (Math.random() < 0.01) {
+                         // Teleport small distance
+                         e.x += (Math.random() - 0.5) * 60;
+                         e.x = Math.max(10, Math.min(CANVAS_WIDTH - 40, e.x));
+                    }
+                }
+                // HIVE: Jitter
+                else if (e.type === 'dragon-hive') {
+                    e.x += (Math.random() - 0.5) * 6;
+                    e.y += (Math.random() - 0.5) * 2;
+                }
+                // IRONCLAD: Heavy drop periodically
+                else if (e.type === 'dragon-ironclad') {
+                    if (frameCountRef.current % 120 === 0) e.y += 10;
+                }
+                // CHRONO: Stop/Go
+                else if (e.type === 'dragon-chrono') {
+                     if (frameCountRef.current % 120 < 60) {
+                         // Move normally with grid
+                     } else {
+                         // Freeze position (counteract grid move later? or simply don't add to X here if custom)
+                         e.x -= 2 * enemyDirectionRef.current; // Cancel out grid movement to "stop"
+                     }
+                }
+                // VENOM: Figure 8
+                else if (e.type === 'dragon-venom') {
+                     e.x += Math.sin(frameCountRef.current / 20) * 3;
+                     e.y += Math.cos(frameCountRef.current / 20) * 1.5;
+                }
+
                 // Standard Grid Movement
                 if (e.state === 'GRID') {
                     e.x += 2 * enemyDirectionRef.current;
@@ -483,6 +605,50 @@ export const GameEngine: React.FC<GameEngineProps> = ({
                 const shooter = shootingCandidates[Math.floor(Math.random() * shootingCandidates.length)];
                 let pWidth = 6; let pHeight = 12; let pSpeed = BULLET_SPEED * 0.6; let pColor = COLOR_NEON_RED;
                 let projType: WeaponType = 'DEFAULT';
+                let specialProps: Partial<Projectile> = {};
+
+                // Special Attack Logic
+                if (shooter.type === 'dragon-phantom') {
+                    pColor = COLOR_NEON_PHANTOM; projType = 'SPECTRAL_ORB'; pSpeed = BULLET_SPEED * 0.4;
+                    pWidth = 10; pHeight = 10;
+                }
+                else if (shooter.type === 'dragon-hive') {
+                    pColor = COLOR_NEON_HIVE; projType = 'CLUSTER_BOMB'; pSpeed = BULLET_SPEED * 0.5;
+                    pWidth = 12; pHeight = 12;
+                }
+                else if (shooter.type === 'dragon-ironclad') {
+                    // Shotgun spread handled immediately
+                    [-0.5, 0, 0.5].forEach(dx => {
+                        projectilesRef.current.push({
+                            x: shooter.x + shooter.width / 2, y: shooter.y + shooter.height,
+                            width: 6, height: 8, dy: BULLET_SPEED * 0.7, dx: dx,
+                            color: COLOR_NEON_IRONCLAD, isEnemy: true, active: true
+                        });
+                    });
+                    playEnemyShoot();
+                    enemyFireCooldownRef.current = 40;
+                    return; // Skip default add
+                }
+                else if (shooter.type === 'dragon-chrono') {
+                    pColor = COLOR_NEON_CHRONO; projType = 'BOOMERANG'; pSpeed = BULLET_SPEED * 0.8;
+                    specialProps = { turnFrame: 60 };
+                }
+                else if (shooter.type === 'dragon-venom') {
+                    pColor = COLOR_NEON_VENOM; projType = 'ACID_SPRAY'; 
+                    // Spray logic
+                    for(let i=0; i<3; i++) {
+                         projectilesRef.current.push({
+                            x: shooter.x + shooter.width / 2, y: shooter.y + shooter.height,
+                            width: 5, height: 5, 
+                            dy: BULLET_SPEED * (0.5 + Math.random() * 0.3), 
+                            dx: (Math.random() - 0.5) * 2,
+                            color: COLOR_NEON_VENOM, isEnemy: true, active: true, projectileType: 'ACID_SPRAY'
+                        });
+                    }
+                    playEnemyShoot();
+                    enemyFireCooldownRef.current = 30;
+                    return;
+                }
                 
                 // Add Projectile
                 projectilesRef.current.push({
@@ -490,6 +656,7 @@ export const GameEngine: React.FC<GameEngineProps> = ({
                     width: pWidth, height: pHeight,
                     dy: pSpeed, color: pColor,
                     isEnemy: true, active: true, projectileType: projType,
+                    ...specialProps
                 });
 
                 playEnemyShoot();
@@ -509,7 +676,7 @@ export const GameEngine: React.FC<GameEngineProps> = ({
         }
     }
     
-    // ... (Animation timers)
+    // Animate enemies
     enemyMoveTimerRef.current++;
     if (enemyMoveTimerRef.current > 30) {
         enemyAnimationToggleRef.current = !enemyAnimationToggleRef.current;
@@ -520,12 +687,39 @@ export const GameEngine: React.FC<GameEngineProps> = ({
     projectilesRef.current.forEach(p => {
          if (p.isEnemy && isTimeSlowed && frameCountRef.current % 3 !== 0) return;
 
+         // Special Projectile Behaviors
+         if (p.projectileType === 'SPECTRAL_ORB' && playerRef.current.active) {
+             // Homing
+             const dx = (playerRef.current.x + playerRef.current.width/2) - p.x;
+             p.x += dx * 0.02; // Steer towards X
+         }
+         else if (p.projectileType === 'BOOMERANG') {
+             if (p.turnFrame && p.turnFrame > 0) {
+                 p.turnFrame--;
+             } else {
+                 p.dy -= 0.2; // Decelerate and reverse
+             }
+         }
+         else if (p.projectileType === 'CLUSTER_BOMB') {
+             if (Math.random() < 0.02 && p.y < CANVAS_HEIGHT / 2) {
+                 p.active = false;
+                 // Split
+                 createExplosion(p.x, p.y, COLOR_NEON_HIVE, 5);
+                 [-1, 1].forEach(dx => {
+                     projectilesRef.current.push({
+                         x: p.x, y: p.y, width: 6, height: 6, dy: BULLET_SPEED * 0.7, dx: dx,
+                         color: COLOR_NEON_HIVE, isEnemy: true, active: true
+                     });
+                 });
+             }
+         }
+
          p.y += p.dy; if (p.dx) p.x += p.dx;
          if (p.rotation !== undefined) p.rotation += 0.1;
 
          if (p.x < 0 || p.x > CANVAS_WIDTH || p.y < -50 || p.y > CANVAS_HEIGHT) p.active = false;
          
-         // Collision Logic (Kept largely the same, just checking active/bomb)
+         // Collision Logic
          if (p.isEnemy && p.active && playerRef.current.active) {
              // Check Player Collision
              if (p.x < playerRef.current.x + playerRef.current.width - 8 && p.x + p.width > playerRef.current.x + 8 &&
@@ -562,27 +756,99 @@ export const GameEngine: React.FC<GameEngineProps> = ({
              });
          }
     });
+
+    // Update Particles
+    particlesRef.current.forEach(p => { p.x += p.vx; p.y += p.vy; p.life -= 0.05; if (p.gravity) p.vy += p.gravity; });
+    particlesRef.current = particlesRef.current.filter(p => p.life > 0);
     
-    // ... (Powerup and cleanup logic remains same)
+    // Update PowerUps
+    powerUpsRef.current.forEach(p => {
+        p.y += POWERUP_SPEED;
+        if (p.y > CANVAS_HEIGHT) p.active = false;
+        
+        // Collect
+        if (p.active && playerRef.current.active &&
+            p.x < playerRef.current.x + playerRef.current.width && p.x + p.width > playerRef.current.x &&
+            p.y < playerRef.current.y + playerRef.current.height && p.y + p.height > playerRef.current.y) {
+            
+            p.active = false;
+            playPowerUpCollect();
+            internalStatsRef.current.score += 50;
+            spawnFloatingText(p.x, p.y, p.type.replace('WEAPON_', '').replace('_', ' '), COLOR_NEON_GOLD, 14);
+
+            if (p.type === 'RAPID_FIRE') { playerRef.current.rapidFireTimer = RAPID_FIRE_DURATION; }
+            else if (p.type === 'SHIELD') { playerRef.current.shieldActive = true; }
+            else if (p.type === 'BOMB') {
+                createExplosion(CANVAS_WIDTH/2, CANVAS_HEIGHT/2, COLOR_POWERUP_BOMB, 50, 20);
+                activeEnemies.forEach(e => { e.health -= 5; e.hitTimer = 10; });
+                projectilesRef.current = projectilesRef.current.filter(pr => !pr.isEnemy); // Clear enemy bullets
+                triggerShake(20);
+            }
+            else if (p.type === 'WEAPON_SPREAD') { playerRef.current.weapon = 'SPREAD'; }
+            else if (p.type === 'WEAPON_LASER') { playerRef.current.weapon = 'LASER'; }
+            else if (p.type === 'WEAPON_EXPLOSIVE') { playerRef.current.weapon = 'EXPLOSIVE'; }
+            else if (p.type === 'WEAPON_PIERCE') { playerRef.current.weapon = 'PIERCING'; }
+            else if (p.type === 'SIDEKICK') { playerRef.current.hasSidekicks = true; }
+            else if (p.type === 'TIME_FREEZE') { timeFreezeTimerRef.current = 300; } // 5 sec
+            else if (p.type === 'INVINCIBILITY') { playerRef.current.invincibleTimer = 300; }
+            else if (p.type === 'DAMAGE_BOOST') { playerRef.current.damageBoostTimer = DAMAGE_BOOST_DURATION; }
+            else if (p.type === 'SCORE_MULTIPLIER') { playerRef.current.scoreMultiplierTimer = SCORE_MULTIPLIER_DURATION; }
+            else if (p.type === 'EXTRA_LIFE') { internalStatsRef.current.lives++; setGameStats(prev => ({ ...prev, lives: internalStatsRef.current.lives })); }
+        }
+    });
+
+    // Update Floating Text
+    floatingTextsRef.current.forEach(t => { t.y += t.vy; t.life--; });
+    floatingTextsRef.current = floatingTextsRef.current.filter(t => t.life > 0);
+
+    // Update Stars
+    starsRef.current.forEach(s => {
+       s.y += s.speed * (playerRef.current.rapidFireTimer > 0 ? 2 : 1);
+       if (s.y > CANVAS_HEIGHT) { s.y = 0; s.x = Math.random() * CANVAS_WIDTH; }
+    });
+
+    // Clean up
     projectilesRef.current = projectilesRef.current.filter(p => p.active);
     enemiesRef.current = enemiesRef.current.filter(e => e.active);
     powerUpsRef.current = powerUpsRef.current.filter(p => p.active);
-    particlesRef.current.forEach(p => { p.x += p.vx; p.y += p.vy; p.life -= 0.05; });
-    particlesRef.current = particlesRef.current.filter(p => p.life > 0);
+    
+    frameCountRef.current++;
+    
+    // Sync score to React State occasionally
+    uiSyncTimerRef.current++;
+    if (uiSyncTimerRef.current > 10) {
+        setGameStats(prev => ({ ...prev, score: internalStatsRef.current.score }));
+        uiSyncTimerRef.current = 0;
+    }
   };
 
   const drawFrame = () => {
-    // ... (Background draw logic same)
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Clear Screen with trail effect
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    // Draw Stars
+    starsRef.current.forEach(s => {
+       ctx.fillStyle = `rgba(255, 255, 255, ${s.brightness})`;
+       ctx.fillRect(s.x, s.y, s.size, s.size);
+    });
+
     // DRAW ENTITIES
     const activeEnemies = enemiesRef.current.filter(e => e.active);
     activeEnemies.forEach(e => {
         let color = COLOR_NEON_GREEN;
-        if (e.type === 'dragon-red') color = COLOR_NEON_RED;
+        // Map Colors
+        if (e.type === 'dragon-phantom') color = COLOR_NEON_PHANTOM;
+        else if (e.type === 'dragon-hive') color = COLOR_NEON_HIVE;
+        else if (e.type === 'dragon-ironclad') color = COLOR_NEON_IRONCLAD;
+        else if (e.type === 'dragon-chrono') color = COLOR_NEON_CHRONO;
+        else if (e.type === 'dragon-venom') color = COLOR_NEON_VENOM;
+        else if (e.type === 'dragon-red') color = COLOR_NEON_RED;
         else if (e.type === 'dragon-gold') color = COLOR_NEON_GOLD;
         else if (e.type === 'dragon-blue') color = COLOR_NEON_BLUE;
         else if (e.type === 'dragon-brown') color = COLOR_NEON_BROWN;
@@ -598,10 +864,18 @@ export const GameEngine: React.FC<GameEngineProps> = ({
         if (e.hitTimer && e.hitTimer > 0) color = '#fff';
 
         ctx.save();
+        if (e.opacity !== undefined) ctx.globalAlpha = e.opacity;
+
         let sprite = enemyAnimationToggleRef.current ? SPRITE_DRAGON_1 : SPRITE_DRAGON_2;
         let scale = 3;
 
-        if (e.type === 'dragon-blue') sprite = enemyAnimationToggleRef.current ? SPRITE_DRAGON_BLUE : SPRITE_DRAGON_BLUE_2;
+        // Map Sprites
+        if (e.type === 'dragon-phantom') sprite = enemyAnimationToggleRef.current ? SPRITE_DRAGON_PHANTOM_1 : SPRITE_DRAGON_PHANTOM_2;
+        else if (e.type === 'dragon-hive') sprite = enemyAnimationToggleRef.current ? SPRITE_DRAGON_HIVE_1 : SPRITE_DRAGON_HIVE_2;
+        else if (e.type === 'dragon-ironclad') sprite = enemyAnimationToggleRef.current ? SPRITE_DRAGON_IRONCLAD_1 : SPRITE_DRAGON_IRONCLAD_2;
+        else if (e.type === 'dragon-chrono') sprite = enemyAnimationToggleRef.current ? SPRITE_DRAGON_CHRONO_1 : SPRITE_DRAGON_CHRONO_2;
+        else if (e.type === 'dragon-venom') sprite = enemyAnimationToggleRef.current ? SPRITE_DRAGON_VENOM_1 : SPRITE_DRAGON_VENOM_2;
+        else if (e.type === 'dragon-blue') sprite = enemyAnimationToggleRef.current ? SPRITE_DRAGON_BLUE : SPRITE_DRAGON_BLUE_2;
         else if (e.type === 'dragon-brown') sprite = enemyAnimationToggleRef.current ? SPRITE_DRAGON_BROWN : SPRITE_DRAGON_BROWN_2;
         else if (e.type === 'dragon-silver') sprite = enemyAnimationToggleRef.current ? SPRITE_DRAGON_SILVER : SPRITE_DRAGON_SILVER_2;
         else if (e.type === 'dragon-shadow') sprite = enemyAnimationToggleRef.current ? SPRITE_DRAGON_SHADOW : SPRITE_DRAGON_SHADOW_2;
@@ -620,17 +894,74 @@ export const GameEngine: React.FC<GameEngineProps> = ({
         else if (e.type === 'dragon-meteor-boss') { sprite = enemyAnimationToggleRef.current ? SPRITE_BOSS_METEOR : SPRITE_BOSS_METEOR_2; scale = 8; }
         
         drawSprite(ctx, sprite, e.x, e.y, color, scale);
+        
+        // Draw Boss Health Bar
+        if (e.type.includes('boss')) {
+            const hpPercent = e.health / e.maxHealth;
+            ctx.fillStyle = '#333';
+            ctx.fillRect(e.x, e.y - 10, e.width, 6);
+            ctx.fillStyle = hpPercent > 0.5 ? '#0f0' : '#f00';
+            ctx.fillRect(e.x, e.y - 10, e.width * hpPercent, 6);
+            
+            // Sorcerer Laser Draw
+            if (e.type === 'dragon-sorcerer-boss' && e.sorcererLaserState !== 'OFF') {
+                const laserWidth = 60;
+                const laserX = e.x + e.width/2 - laserWidth/2;
+                if (e.sorcererLaserState === 'WARNING') {
+                     ctx.fillStyle = `rgba(255, 0, 0, 0.3)`;
+                     ctx.fillRect(laserX, e.y + e.height, laserWidth, CANVAS_HEIGHT);
+                } else if (e.sorcererLaserState === 'FIRING') {
+                     ctx.fillStyle = COLOR_LASER_BEAM;
+                     ctx.fillRect(laserX, e.y + e.height, laserWidth, CANVAS_HEIGHT);
+                     ctx.fillStyle = '#fff';
+                     ctx.fillRect(laserX + 10, e.y + e.height, laserWidth - 20, CANVAS_HEIGHT);
+                     triggerShake(5);
+                }
+            }
+        }
+        
         ctx.restore();
     });
 
     // Draw Projectiles
     projectilesRef.current.forEach(p => {
         ctx.fillStyle = p.color;
-        ctx.fillRect(p.x, p.y, p.width, p.height);
+        if (p.projectileType === 'SPECTRAL_ORB') {
+             ctx.beginPath(); ctx.arc(p.x + p.width/2, p.y + p.height/2, p.width/2, 0, Math.PI*2); ctx.fill();
+             ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke();
+        } else if (p.projectileType === 'BOOMERANG') {
+             ctx.save(); ctx.translate(p.x + p.width/2, p.y + p.height/2);
+             ctx.rotate(frameCountRef.current * 0.2);
+             ctx.fillRect(-p.width/2, -p.height/2, p.width, p.height);
+             ctx.restore();
+        } else {
+             ctx.fillRect(p.x, p.y, p.width, p.height);
+        }
     });
 
-    // ... (Rest of drawing logic for player, powerups, HUD remains same)
-    // Basic redraws for context
+    // Draw PowerUps
+    powerUpsRef.current.forEach(p => {
+        let sprite = SPRITE_POWERUP_RAPID;
+        let color = COLOR_POWERUP_RAPID;
+        
+        if (p.type === 'RAPID_FIRE') { sprite = SPRITE_POWERUP_RAPID; color = COLOR_POWERUP_RAPID; }
+        else if (p.type === 'SHIELD') { sprite = SPRITE_POWERUP_SHIELD; color = COLOR_POWERUP_SHIELD; }
+        else if (p.type === 'BOMB') { sprite = SPRITE_POWERUP_BOMB; color = COLOR_POWERUP_BOMB; }
+        else if (p.type === 'WEAPON_SPREAD') { sprite = SPRITE_POWERUP_SPREAD; color = COLOR_POWERUP_SPREAD; }
+        else if (p.type === 'WEAPON_LASER') { sprite = SPRITE_POWERUP_LASER; color = COLOR_POWERUP_LASER; }
+        else if (p.type === 'WEAPON_EXPLOSIVE') { sprite = SPRITE_POWERUP_EXPLOSIVE; color = COLOR_POWERUP_EXPLOSIVE; }
+        else if (p.type === 'TIME_FREEZE') { sprite = SPRITE_POWERUP_TIME; color = COLOR_POWERUP_TIME; }
+        else if (p.type === 'EXTRA_LIFE') { sprite = SPRITE_POWERUP_LIFE; color = COLOR_POWERUP_LIFE; }
+        else if (p.type === 'WEAPON_PIERCE') { sprite = SPRITE_POWERUP_PIERCE; color = COLOR_POWERUP_PIERCE; }
+        else if (p.type === 'SIDEKICK') { sprite = SPRITE_POWERUP_SIDEKICK; color = COLOR_POWERUP_SIDEKICK; }
+        else if (p.type === 'INVINCIBILITY') { sprite = SPRITE_POWERUP_INVINCIBILITY; color = COLOR_POWERUP_INVINCIBILITY; }
+        else if (p.type === 'DAMAGE_BOOST') { sprite = SPRITE_POWERUP_DAMAGE; color = COLOR_POWERUP_DAMAGE; }
+        else if (p.type === 'SCORE_MULTIPLIER') { sprite = SPRITE_POWERUP_SCORE; color = COLOR_POWERUP_SCORE; }
+        
+        drawSprite(ctx, sprite, p.x, p.y, color, 3);
+    });
+
+    // Draw Particles
     particlesRef.current.forEach(p => {
       ctx.globalAlpha = p.life;
       ctx.fillStyle = p.color;
@@ -640,26 +971,78 @@ export const GameEngine: React.FC<GameEngineProps> = ({
       ctx.globalAlpha = 1.0;
     });
 
+    // Draw Player
     if (playerRef.current.active) {
-       drawSprite(ctx, SPRITE_PLAYER, playerRef.current.x, playerRef.current.y, COLOR_NEON_BLUE, 4);
+       if (playerRef.current.invincibleTimer > 0 && frameCountRef.current % 4 === 0) {
+           // Flicker
+       } else {
+           drawSprite(ctx, SPRITE_PLAYER, playerRef.current.x, playerRef.current.y, COLOR_NEON_BLUE, 4);
+           // Shield Visual
+           if (playerRef.current.shieldActive) {
+               ctx.strokeStyle = COLOR_POWERUP_SHIELD;
+               ctx.lineWidth = 2;
+               ctx.beginPath();
+               ctx.arc(playerRef.current.x + 22, playerRef.current.y + 16, 30, 0, Math.PI*2);
+               ctx.stroke();
+           }
+           // Sidekicks
+           if (playerRef.current.hasSidekicks) {
+               drawSprite(ctx, SPRITE_POWERUP_SIDEKICK, playerRef.current.x - 20, playerRef.current.y + 10, COLOR_POWERUP_SIDEKICK, 2);
+               drawSprite(ctx, SPRITE_POWERUP_SIDEKICK, playerRef.current.x + 44, playerRef.current.y + 10, COLOR_POWERUP_SIDEKICK, 2);
+           }
+       }
+    }
+    
+    // Draw Floating Text
+    floatingTextsRef.current.forEach(t => {
+        ctx.fillStyle = t.color;
+        ctx.font = `bold ${t.size}px monospace`;
+        ctx.fillText(t.text, t.x, t.y);
+    });
+
+    // Level Banner
+    if (levelBannerTimerRef.current > 0) {
+        ctx.fillStyle = `rgba(0,0,0, ${levelBannerTimerRef.current / 120 * 0.5})`;
+        ctx.fillRect(0, CANVAS_HEIGHT/2 - 40, CANVAS_WIDTH, 80);
+        ctx.fillStyle = '#fff';
+        ctx.font = '30px "Press Start 2P", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(`LEVEL ${gameStats.level}`, CANVAS_WIDTH/2, CANVAS_HEIGHT/2 + 10);
+        ctx.textAlign = 'left';
+    }
+    
+    // Screen Shake Apply
+    if (screenShakeRef.current > 1) {
+        const dx = (Math.random() - 0.5) * screenShakeRef.current;
+        const dy = (Math.random() - 0.5) * screenShakeRef.current;
+        // We can't easily rotate the whole canvas context here without saving/restoring everything at top level
+        // But we can just offset the next frame or use CSS. 
+        // For simplicity in this engine, we won't shift context, but maybe logic updates already did visually?
+        // Actually best way is to translate context at start of drawFrame.
     }
   };
 
-  // ... (useEffect loops remain same)
+  // --- Animation Loop ---
   
   const loop = useCallback((timestamp: number) => {
     if (!lastFrameTimeRef.current) lastFrameTimeRef.current = timestamp;
     const deltaTime = timestamp - lastFrameTimeRef.current;
     const targetInterval = 1000 / 60; 
+    
+    if (gameState === GameState.PLAYING) {
+        if (screenShakeRef.current > 0) {
+             // visual shake effect applied by modifying drawing coordinates or CSS, 
+             // but simpler is to just let the updateLogic handle the value decay.
+        }
+    }
+
     if (deltaTime >= targetInterval) {
       updateLogic();
       drawFrame();
       lastFrameTimeRef.current = timestamp - (deltaTime % targetInterval);
     }
     requestRef.current = requestAnimationFrame(loop);
-  }, [updateLogic, drawFrame]);
-
-  // ... (Input handlers remain same)
+  }, [updateLogic, drawFrame, gameState]);
 
   useEffect(() => {
     requestRef.current = requestAnimationFrame(loop);
@@ -668,15 +1051,36 @@ export const GameEngine: React.FC<GameEngineProps> = ({
     };
   }, [loop]);
 
-  // ... (Key handlers return)
+  // Handle Input
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => { keysRef.current[e.key] = true; };
     const handleKeyUp = (e: KeyboardEvent) => { keysRef.current[e.key] = false; };
+    
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
+    
+    // Touch Controls for Mobile
+    const handleTouchStart = (e: TouchEvent) => {
+        const touchX = e.touches[0].clientX;
+        const width = window.innerWidth;
+        if (touchX < width / 2) keysRef.current['ArrowLeft'] = true;
+        else keysRef.current['ArrowRight'] = true;
+        keysRef.current[' '] = true; // Auto fire on touch
+    };
+    const handleTouchEnd = () => {
+        keysRef.current['ArrowLeft'] = false;
+        keysRef.current['ArrowRight'] = false;
+        keysRef.current[' '] = false;
+    };
+    
+    window.addEventListener('touchstart', handleTouchStart);
+    window.addEventListener('touchend', handleTouchEnd);
+
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
     };
   }, []);
 

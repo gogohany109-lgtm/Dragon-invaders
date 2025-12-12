@@ -24,12 +24,11 @@ export interface Player extends Entity {
   cooldown: number;
   shieldActive: boolean;
   rapidFireTimer: number;
-  weapon: WeaponType; // New property for current weapon
-  // New props
+  weapon: WeaponType;
   hasSidekicks: boolean;
   invincibleTimer: number;
-  damageBoostTimer: number; // New: x2 Damage
-  scoreMultiplierTimer: number; // New: x2 Score
+  damageBoostTimer: number;
+  scoreMultiplierTimer: number;
 }
 
 export type PowerUpType = 'RAPID_FIRE' | 'SHIELD' | 'BOMB' | 'WEAPON_LASER' | 'WEAPON_SPREAD' | 'WEAPON_EXPLOSIVE' | 'TIME_FREEZE' | 'EXTRA_LIFE' | 'WEAPON_PIERCE' | 'SIDEKICK' | 'INVINCIBILITY' | 'DAMAGE_BOOST' | 'SCORE_MULTIPLIER';
@@ -39,62 +38,61 @@ export interface PowerUp extends Entity {
 }
 
 export interface Enemy extends Entity {
-  id: string; // Added ID for piercing shot tracking
+  id: string;
   row: number;
   col: number;
   type: 'dragon-red' | 'dragon-green' | 'dragon-gold' | 'dragon-boss' | 'dragon-mech-boss' | 'dragon-electric-boss' | 'dragon-hydra-boss' | 'dragon-sorcerer-boss' | 'dragon-meteor-boss' | 'dragon-chef-boss' | 'dragon-blue' | 'dragon-brown' | 'dragon-silver' | 'dragon-shadow' | 'dragon-orange' | 'dragon-emerald' | 'dragon-amethyst' | 'dragon-frost' | 'dragon-obsidian' | 'dragon-crimson';
-  state: 'GRID' | 'DIVING' | 'RETURNING' | 'PREPARE_CHARGE'; // Added PREPARE_CHARGE
+  state: 'GRID' | 'DIVING' | 'RETURNING' | 'PREPARE_CHARGE'; 
   animationFrame: number;
   health: number;
   maxHealth: number;
-  hitTimer?: number; // Visual flash when hit
-  diveStartX?: number; // For sine wave calculations
+  hitTimer?: number;
+  diveStartX?: number;
   diveStartY?: number;
-  fireBreathTimer?: number; // For the continuous fire attack
-  chargeTargetX?: number; // For Hydra charge targeting
-  moveAngle?: number; // For Sorcerer circular movement
+  fireBreathTimer?: number;
+  chargeTargetX?: number;
+  moveAngle?: number;
   // Sorcerer Laser Props
   sorcererLaserState?: 'OFF' | 'WARNING' | 'FIRING';
   sorcererLaserTimer?: number;
   // Meteor Boss Props
   meteorState?: 'OFF' | 'WARNING' | 'RAINING';
   meteorTimer?: number;
-  meteorTargets?: number[]; // X coordinates for rain
+  meteorTargets?: number[];
 }
 
 export interface Projectile extends Entity {
   dy: number;
-  dx?: number; // Added horizontal velocity for spread shots
+  dx?: number;
   color: string;
   isEnemy: boolean;
-  isBomb?: boolean; // Explodes on ground contact (Enemy) OR impact (Player)
-  projectileType?: WeaponType; // To track behavior like explosions
-  rotation?: number; // For rotating projectiles like the web
-  // Piercing props
+  isBomb?: boolean;
+  projectileType?: WeaponType;
+  rotation?: number;
   isPiercing?: boolean;
-  hitEntityIds?: string[]; // IDs of enemies already hit by this projectile
+  hitEntityIds?: string[];
 }
 
 export interface Particle extends Position {
   vx: number;
   vy: number;
   life: number;
-  maxLife: number; // Added for opacity calculation
+  maxLife: number;
   color: string;
   size: number;
-  gravity?: number; // Added for physics feel
+  gravity?: number;
 }
 
 export interface FloatingText extends Position {
   text: string;
-  life: number; // Frames to live
+  life: number;
   color: string;
-  vy: number; // Float speed
+  vy: number;
   size: number;
 }
 
 export interface BunkerPart extends Entity {
-  damage: number; // 0 to 3
+  damage: number;
 }
 
 export interface Star {

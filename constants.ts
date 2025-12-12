@@ -1,20 +1,21 @@
 
+
 export const CANVAS_WIDTH = 600;
 export const CANVAS_HEIGHT = 700;
 export const PLAYER_SPEED = 5;
 export const BULLET_SPEED = 7;
-export const ENEMY_SPEED_BASE = 1; // Increases per level
+export const ENEMY_SPEED_BASE = 1;
 export const ENEMY_DROP_DISTANCE = 20;
 export const FIRE_COOLDOWN = 30;
 export const BOSS_HP_BASE = 50;
 
 // Power-Up Config
 export const POWERUP_SPEED = 2;
-export const POWERUP_DROP_CHANCE = 0.15; // Increased chance due to more types
+export const POWERUP_DROP_CHANCE = 0.15;
 export const RAPID_FIRE_COOLDOWN = 8;
-export const RAPID_FIRE_DURATION = 600; // ~10 seconds at 60fps
-export const DAMAGE_BOOST_DURATION = 600; // 10 seconds
-export const SCORE_MULTIPLIER_DURATION = 900; // 15 seconds
+export const RAPID_FIRE_DURATION = 600;
+export const DAMAGE_BOOST_DURATION = 600;
+export const SCORE_MULTIPLIER_DURATION = 900;
 
 // Simple 11x8 sprite maps (1 = pixel, 0 = empty)
 export const SPRITE_PLAYER = [
@@ -28,7 +29,7 @@ export const SPRITE_PLAYER = [
   [1,0,1,0,0,0,0,0,1,0,1],
 ];
 
-export const SPRITE_DRAGON_1 = [ // Wings up
+export const SPRITE_DRAGON_1 = [
   [0,0,1,0,0,0,0,0,1,0,0],
   [1,0,1,1,0,0,0,1,1,0,1],
   [1,0,1,1,1,1,1,1,1,0,1],
@@ -39,7 +40,7 @@ export const SPRITE_DRAGON_1 = [ // Wings up
   [0,1,1,0,0,0,0,0,1,1,0],
 ];
 
-export const SPRITE_DRAGON_2 = [ // Wings down
+export const SPRITE_DRAGON_2 = [
   [0,0,0,0,1,0,1,0,0,0,0],
   [0,0,0,1,1,1,1,1,0,0,0],
   [0,0,1,1,1,1,1,1,1,0,0],
@@ -50,7 +51,7 @@ export const SPRITE_DRAGON_2 = [ // Wings down
   [0,1,0,0,0,0,0,0,0,1,0],
 ];
 
-export const SPRITE_DRAGON_BLUE = [ // Streamlined / Diver Frame 1
+export const SPRITE_DRAGON_BLUE = [
   [0,0,0,0,1,0,0,0,0,0,0],
   [0,0,0,1,1,1,0,0,0,0,0],
   [0,0,1,1,1,1,1,0,0,0,0],
@@ -61,18 +62,18 @@ export const SPRITE_DRAGON_BLUE = [ // Streamlined / Diver Frame 1
   [1,0,0,0,1,0,0,0,1,0,0],
 ];
 
-export const SPRITE_DRAGON_BLUE_2 = [ // Streamlined / Diver Frame 2 (Wings Tucked/Back)
+export const SPRITE_DRAGON_BLUE_2 = [
   [0,0,0,0,1,0,0,0,0,0,0],
   [0,0,0,1,1,1,0,0,0,0,0],
   [0,0,0,1,1,1,0,0,0,0,0],
   [0,0,1,1,1,1,1,0,0,0,0],
   [0,1,1,1,1,1,1,1,0,0,0],
-  [1,1,1,0,1,0,1,1,1,0,0], // Wings swept back
+  [1,1,1,0,1,0,1,1,1,0,0],
   [1,0,0,0,1,0,0,0,1,0,0],
   [0,0,0,0,1,0,0,0,0,0,0],
 ];
 
-export const SPRITE_DRAGON_BROWN = [ // Earth / Heavy / Rock-like Frame 1
+export const SPRITE_DRAGON_BROWN = [
   [0,0,0,1,1,1,1,1,0,0,0],
   [0,0,1,1,1,1,1,1,1,0,0],
   [0,1,1,1,1,1,1,1,1,1,0],
@@ -83,18 +84,18 @@ export const SPRITE_DRAGON_BROWN = [ // Earth / Heavy / Rock-like Frame 1
   [0,1,1,0,0,1,0,0,1,1,0],
 ];
 
-export const SPRITE_DRAGON_BROWN_2 = [ // Earth / Heavy / Rock-like Frame 2 (Stomp/Crunch)
+export const SPRITE_DRAGON_BROWN_2 = [
   [0,0,0,1,1,1,1,1,0,0,0],
   [0,0,1,1,1,1,1,1,1,0,0],
   [0,1,1,1,1,1,1,1,1,1,0],
-  [0,1,1,0,0,1,0,0,1,1,0], // Wings lower
+  [0,1,1,0,0,1,0,0,1,1,0],
   [1,1,1,1,1,1,1,1,1,1,1],
-  [1,1,1,0,1,1,1,0,1,1,1], // Legs wider
+  [1,1,1,0,1,1,1,0,1,1,1],
   [1,0,1,1,0,1,0,1,1,0,1],
   [1,0,1,0,0,1,0,0,1,0,1],
 ];
 
-export const SPRITE_DRAGON_SILVER = [ // Armored / Square Frame 1
+export const SPRITE_DRAGON_SILVER = [
   [1,1,1,1,1,1,1,1,1,1,1],
   [1,1,0,0,1,1,1,0,0,1,1],
   [1,1,0,1,1,1,1,1,0,1,1],
@@ -105,18 +106,18 @@ export const SPRITE_DRAGON_SILVER = [ // Armored / Square Frame 1
   [0,1,1,0,0,0,0,0,1,1,0],
 ];
 
-export const SPRITE_DRAGON_SILVER_2 = [ // Armored / Square Frame 2 (Mechanized Step)
+export const SPRITE_DRAGON_SILVER_2 = [
   [1,1,1,1,1,1,1,1,1,1,1],
   [1,1,0,0,1,1,1,0,0,1,1],
   [1,1,0,1,1,1,1,1,0,1,1],
-  [0,1,1,1,1,1,1,1,1,1,0], // Body compresses
+  [0,1,1,1,1,1,1,1,1,1,0],
   [1,1,1,1,1,1,1,1,1,1,1], 
-  [1,1,1,0,0,0,0,0,1,1,1], // Legs shift
+  [1,1,1,0,0,0,0,0,1,1,1],
   [1,0,1,0,0,0,0,0,1,0,1], 
   [1,0,1,0,0,0,0,0,1,0,1],
 ];
 
-export const SPRITE_DRAGON_SHADOW = [ // Wispy / Thin Frame 1
+export const SPRITE_DRAGON_SHADOW = [
   [0,0,0,0,1,0,1,0,0,0,0],
   [0,0,1,0,1,1,1,0,1,0,0],
   [0,1,1,1,1,1,1,1,1,1,0],
@@ -127,74 +128,74 @@ export const SPRITE_DRAGON_SHADOW = [ // Wispy / Thin Frame 1
   [0,1,0,0,0,1,0,0,0,1,0],
 ];
 
-export const SPRITE_DRAGON_SHADOW_2 = [ // Wispy / Thin Frame 2 (Flicker/Distort)
+export const SPRITE_DRAGON_SHADOW_2 = [
   [0,0,0,0,1,0,1,0,0,0,0],
-  [0,0,0,1,1,1,1,1,0,0,0], // Head wider
+  [0,0,0,1,1,1,1,1,0,0,0],
   [0,1,1,1,1,1,1,1,1,1,0],
-  [0,1,0,1,1,1,1,1,0,1,0], // Body thinner
+  [0,1,0,1,1,1,1,1,0,1,0],
   [0,1,1,0,1,1,1,0,1,1,0],
-  [0,0,1,0,0,1,0,0,1,0,0], // Legs ghosting
+  [0,0,1,0,0,1,0,0,1,0,0],
   [0,1,0,0,0,1,0,0,0,1,0],
   [0,0,1,0,0,1,0,0,1,0,0],
 ];
 
-export const SPRITE_DRAGON_ORANGE = [ // Crystal / Laser focus
+export const SPRITE_DRAGON_ORANGE = [
   [0,0,0,0,1,1,0,0,0,0,0],
   [0,0,0,1,1,1,1,0,0,0,0],
   [0,0,1,1,1,1,1,1,0,0,0],
-  [0,1,1,1,0,0,1,1,1,0,0], // Eye gap
+  [0,1,1,1,0,0,1,1,1,0,0],
   [0,1,1,1,1,1,1,1,1,0,0],
   [1,1,0,1,1,1,1,0,1,1,0],
   [1,0,0,0,1,1,0,0,0,1,0],
   [1,0,0,0,1,1,0,0,0,1,0],
 ];
 
-export const SPRITE_DRAGON_EMERALD_1 = [ // Sharp/Crystal
-  [0,0,0,0,1,0,0,0,0,0,0], // Spike
+export const SPRITE_DRAGON_EMERALD_1 = [
+  [0,0,0,0,1,0,0,0,0,0,0],
   [0,0,1,0,1,0,1,0,0,0,0], 
   [0,1,1,1,1,1,1,1,0,0,0],
   [1,1,0,1,1,1,0,1,1,0,0],
   [1,1,1,1,1,1,1,1,1,0,0],
-  [0,1,0,1,0,1,0,1,0,0,0], // Jagged feet
+  [0,1,0,1,0,1,0,1,0,0,0],
   [0,1,0,0,0,0,0,1,0,0,0],
   [1,0,1,0,0,0,1,0,1,0,0],
 ];
 
-export const SPRITE_DRAGON_EMERALD_2 = [ // Glimmer shift
+export const SPRITE_DRAGON_EMERALD_2 = [
   [0,0,0,0,1,0,0,0,0,0,0],
-  [0,0,0,1,1,1,0,0,0,0,0], // Head shifts
+  [0,0,0,1,1,1,0,0,0,0,0],
   [0,0,1,1,1,1,1,0,0,0,0],
   [0,1,1,0,1,0,1,1,0,0,0],
   [1,1,1,1,1,1,1,1,1,0,0],
-  [0,0,1,0,1,0,1,0,0,0,0], // Feet closer
+  [0,0,1,0,1,0,1,0,0,0,0],
   [0,0,1,0,0,0,1,0,0,0,0],
   [0,1,0,1,0,1,0,1,0,0,0],
 ];
 
-export const SPRITE_DRAGON_AMETHYST_1 = [ // Ghost/Brainy
-  [0,0,0,1,1,1,1,1,0,0,0], // Wide head
+export const SPRITE_DRAGON_AMETHYST_1 = [
+  [0,0,0,1,1,1,1,1,0,0,0],
   [0,0,1,1,1,1,1,1,1,0,0],
   [0,1,1,0,1,1,1,0,1,1,0],
   [1,1,1,1,1,1,1,1,1,1,1],
-  [1,0,1,0,1,0,1,0,1,0,1], // Tentacles down
+  [1,0,1,0,1,0,1,0,1,0,1],
   [1,0,1,0,1,0,1,0,1,0,1],
   [0,0,1,0,0,0,0,0,1,0,0],
   [0,0,0,0,0,0,0,0,0,0,0],
 ];
 
-export const SPRITE_DRAGON_AMETHYST_2 = [ // Tentacles flair
+export const SPRITE_DRAGON_AMETHYST_2 = [
   [0,0,0,1,1,1,1,1,0,0,0],
   [0,0,1,1,1,1,1,1,1,0,0],
   [0,1,1,0,1,1,1,0,1,1,0],
   [1,1,1,1,1,1,1,1,1,1,1],
-  [0,1,0,1,0,1,0,1,0,1,0], // Tentacles up/out
+  [0,1,0,1,0,1,0,1,0,1,0],
   [1,0,0,0,1,0,0,0,1,0,1],
   [0,1,0,0,0,0,0,1,0,0,0],
   [1,0,1,0,0,0,1,0,1,0,0],
 ];
 
-export const SPRITE_DRAGON_FROST_1 = [ // Sharp/Icy Frame 1
-  [0,0,1,0,0,1,0,0,1,0,0], // Ice shards
+export const SPRITE_DRAGON_FROST_1 = [
+  [0,0,1,0,0,1,0,0,1,0,0],
   [0,0,1,1,1,1,1,1,1,0,0],
   [0,1,1,1,1,1,1,1,1,1,0],
   [1,1,0,1,1,1,1,1,0,1,1],
@@ -204,18 +205,18 @@ export const SPRITE_DRAGON_FROST_1 = [ // Sharp/Icy Frame 1
   [0,1,0,0,0,0,0,0,0,1,0],
 ];
 
-export const SPRITE_DRAGON_FROST_2 = [ // Sharp/Icy Frame 2
-  [0,0,0,1,0,1,0,1,0,0,0], // Shards shift
+export const SPRITE_DRAGON_FROST_2 = [
+  [0,0,0,1,0,1,0,1,0,0,0],
   [0,0,1,1,1,1,1,1,1,0,0],
   [0,1,1,1,1,1,1,1,1,1,0],
   [1,1,0,1,1,1,1,1,0,1,1],
   [1,0,0,1,1,1,1,1,0,0,1],
-  [0,0,0,1,0,1,0,1,0,0,0], // Legs narrower
+  [0,0,0,1,0,1,0,1,0,0,0],
   [0,0,1,0,0,1,0,0,1,0,0],
   [0,0,1,0,0,0,0,0,1,0,0],
 ];
 
-export const SPRITE_DRAGON_OBSIDIAN_1 = [ // Blocky/Rock Frame 1
+export const SPRITE_DRAGON_OBSIDIAN_1 = [
   [0,1,1,1,1,1,1,1,1,1,0],
   [1,1,1,1,1,1,1,1,1,1,1],
   [1,1,0,0,1,1,1,0,0,1,1],
@@ -226,19 +227,19 @@ export const SPRITE_DRAGON_OBSIDIAN_1 = [ // Blocky/Rock Frame 1
   [1,1,1,1,0,0,0,1,1,1,1],
 ];
 
-export const SPRITE_DRAGON_OBSIDIAN_2 = [ // Blocky/Rock Frame 2
+export const SPRITE_DRAGON_OBSIDIAN_2 = [
   [0,1,1,1,1,1,1,1,1,1,0],
   [1,1,1,1,1,1,1,1,1,1,1],
   [1,1,0,0,1,1,1,0,0,1,1],
   [1,1,1,1,1,1,1,1,1,1,1],
-  [0,1,1,1,1,1,1,1,1,1,0], // Body compresses
+  [0,1,1,1,1,1,1,1,1,1,0],
   [0,1,1,1,0,0,0,1,1,1,0],
   [0,1,1,0,0,0,0,0,1,1,0],
-  [1,1,0,0,0,0,0,0,0,1,1], // Stomp out
+  [1,1,0,0,0,0,0,0,0,1,1],
 ];
 
-export const SPRITE_DRAGON_CRIMSON_1 = [ // Elite/Evil Frame 1
-  [1,0,0,0,0,1,0,0,0,0,1], // Long horns
+export const SPRITE_DRAGON_CRIMSON_1 = [
+  [1,0,0,0,0,1,0,0,0,0,1],
   [1,1,0,0,1,1,1,0,0,1,1],
   [0,1,1,1,1,1,1,1,1,1,0],
   [0,1,1,0,1,1,1,0,1,1,0],
@@ -248,14 +249,14 @@ export const SPRITE_DRAGON_CRIMSON_1 = [ // Elite/Evil Frame 1
   [0,1,1,0,0,0,0,0,1,1,0],
 ];
 
-export const SPRITE_DRAGON_CRIMSON_2 = [ // Elite/Evil Frame 2
+export const SPRITE_DRAGON_CRIMSON_2 = [
   [1,0,0,0,0,1,0,0,0,0,1],
   [1,1,0,0,1,1,1,0,0,1,1],
   [0,1,1,1,1,1,1,1,1,1,0],
-  [0,1,1,0,1,0,1,0,1,1,0], // Mouth opens
+  [0,1,1,0,1,0,1,0,1,1,0],
   [1,1,1,1,1,1,1,1,1,1,1],
   [1,0,1,0,0,1,0,0,1,0,1],
-  [0,0,0,1,0,1,0,1,0,0,0], // Legs in
+  [0,0,0,1,0,1,0,1,0,0,0],
   [0,0,1,0,0,0,0,0,1,0,0],
 ];
 

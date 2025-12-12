@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useCallback } from 'react';
 import { 
   CANVAS_WIDTH, CANVAS_HEIGHT, PLAYER_SPEED, BULLET_SPEED, 
@@ -19,17 +20,11 @@ import {
   SPRITE_DRAGON_FROST_1, SPRITE_DRAGON_FROST_2,
   SPRITE_DRAGON_OBSIDIAN_1, SPRITE_DRAGON_OBSIDIAN_2,
   SPRITE_DRAGON_CRIMSON_1, SPRITE_DRAGON_CRIMSON_2,
-  SPRITE_DRAGON_PHANTOM_1, SPRITE_DRAGON_PHANTOM_2,
-  SPRITE_DRAGON_HIVE_1, SPRITE_DRAGON_HIVE_2,
-  SPRITE_DRAGON_IRONCLAD_1, SPRITE_DRAGON_IRONCLAD_2,
-  SPRITE_DRAGON_CHRONO_1, SPRITE_DRAGON_CHRONO_2,
-  SPRITE_DRAGON_VENOM_1, SPRITE_DRAGON_VENOM_2,
   SPRITE_POWERUP_RAPID, SPRITE_POWERUP_SHIELD, SPRITE_POWERUP_BOMB, 
   SPRITE_POWERUP_SPREAD, SPRITE_POWERUP_LASER, SPRITE_POWERUP_EXPLOSIVE, SPRITE_POWERUP_TIME, SPRITE_POWERUP_LIFE,
   SPRITE_POWERUP_PIERCE, SPRITE_POWERUP_SIDEKICK, SPRITE_POWERUP_INVINCIBILITY, SPRITE_POWERUP_DAMAGE, SPRITE_POWERUP_SCORE,
   COLOR_NEON_BLUE, COLOR_NEON_RED, COLOR_NEON_GREEN, COLOR_NEON_GOLD, COLOR_NEON_PURPLE, COLOR_NEON_CYAN, COLOR_NEON_BROWN, COLOR_NEON_SILVER, COLOR_NEON_SHADOW, COLOR_NEON_ORANGE, COLOR_NEON_EMERALD, COLOR_NEON_AMETHYST,
   COLOR_NEON_FROST, COLOR_NEON_OBSIDIAN, COLOR_NEON_CRIMSON,
-  COLOR_NEON_PHANTOM, COLOR_NEON_HIVE, COLOR_NEON_IRONCLAD, COLOR_NEON_CHRONO, COLOR_NEON_VENOM,
   COLOR_BOSS_MECH, COLOR_BOSS_MECH_DARK, COLOR_BOSS_ELECTRIC, COLOR_BOSS_ELECTRIC_WEB, COLOR_BOSS_HYDRA, COLOR_BOSS_HYDRA_DARK,
   COLOR_BOSS_SORCERER, COLOR_BOSS_SORCERER_DARK, COLOR_LASER_BEAM,
   COLOR_BOSS_METEOR, COLOR_METEOR_FIRE,
@@ -291,9 +286,6 @@ export const GameEngine: React.FC<GameEngineProps> = ({
            else if (gameStats.level >= 5 && Math.random() > 0.6) { type = 'dragon-emerald'; health = 2; } 
            else if (gameStats.level >= 6 && Math.random() > 0.5) { type = 'dragon-brown'; health = 2; } 
            else if (gameStats.level >= 3 && Math.random() > 0.5) { type = 'dragon-blue'; }
-           // New Enemies Top Row Mix
-           else if (gameStats.level >= 4 && Math.random() > 0.6) { type = 'dragon-phantom'; health = 2; }
-           else if (gameStats.level >= 2 && Math.random() > 0.7) { type = 'dragon-hive'; health = 1; }
         }
         else if (r === 1) {
            if (gameStats.level >= 8 && Math.random() > 0.75) { type = 'dragon-obsidian'; health = 5; } 
@@ -302,16 +294,12 @@ export const GameEngine: React.FC<GameEngineProps> = ({
            else if (gameStats.level >= 4 && Math.random() > 0.7) { type = 'dragon-silver'; health = 3; } 
            else if (gameStats.level >= 6 && Math.random() > 0.6) { type = 'dragon-brown'; health = 2; } 
            else if (gameStats.level >= 3 && Math.random() > 0.4) { type = 'dragon-blue'; }
-           else if (gameStats.level >= 3 && Math.random() > 0.5) { type = 'dragon-ironclad'; health = 4; }
-           else if (gameStats.level >= 2 && Math.random() > 0.6) { type = 'dragon-chrono'; health = 2; }
            else { type = 'dragon-red'; }
         }
         else if (r < 3) {
             type = 'dragon-red';
             if (gameStats.level >= 6 && Math.random() > 0.8) { type = 'dragon-frost'; health = 2; } 
             else if (gameStats.level >= 8 && Math.random() > 0.9) { type = 'dragon-silver'; health = 3; }
-            else if (gameStats.level >= 4 && Math.random() > 0.85) { type = 'dragon-venom'; health = 2; }
-            else if (gameStats.level >= 2 && Math.random() > 0.9) { type = 'dragon-hive'; health = 1; }
         }
 
         for(let c = 0; c < cols; c++) {
@@ -329,7 +317,6 @@ export const GameEngine: React.FC<GameEngineProps> = ({
             animationFrame: 0,
             health: health,
             maxHealth: health,
-            opacity: 1 // For phantom
           });
         }
       }
@@ -555,41 +542,7 @@ export const GameEngine: React.FC<GameEngineProps> = ({
             let hitEdge = false;
             let lowestEnemyY = 0;
             
-            // --- NEW ENEMY MOVEMENT LOGIC ---
             activeEnemies.forEach(e => {
-                // PHANTOM: Fade in/out and teleport
-                if (e.type === 'dragon-phantom') {
-                    e.opacity = Math.abs(Math.sin(frameCountRef.current / 40));
-                    if (Math.random() < 0.01) {
-                         // Teleport small distance
-                         e.x += (Math.random() - 0.5) * 60;
-                         e.x = Math.max(10, Math.min(CANVAS_WIDTH - 40, e.x));
-                    }
-                }
-                // HIVE: Jitter
-                else if (e.type === 'dragon-hive') {
-                    e.x += (Math.random() - 0.5) * 6;
-                    e.y += (Math.random() - 0.5) * 2;
-                }
-                // IRONCLAD: Heavy drop periodically
-                else if (e.type === 'dragon-ironclad') {
-                    if (frameCountRef.current % 120 === 0) e.y += 10;
-                }
-                // CHRONO: Stop/Go
-                else if (e.type === 'dragon-chrono') {
-                     if (frameCountRef.current % 120 < 60) {
-                         // Move normally with grid
-                     } else {
-                         // Freeze position (counteract grid move later? or simply don't add to X here if custom)
-                         e.x -= 2 * enemyDirectionRef.current; // Cancel out grid movement to "stop"
-                     }
-                }
-                // VENOM: Figure 8
-                else if (e.type === 'dragon-venom') {
-                     e.x += Math.sin(frameCountRef.current / 20) * 3;
-                     e.y += Math.cos(frameCountRef.current / 20) * 1.5;
-                }
-
                 // Standard Grid Movement
                 if (e.state === 'GRID') {
                     e.x += 2 * enemyDirectionRef.current;
@@ -605,50 +558,6 @@ export const GameEngine: React.FC<GameEngineProps> = ({
                 const shooter = shootingCandidates[Math.floor(Math.random() * shootingCandidates.length)];
                 let pWidth = 6; let pHeight = 12; let pSpeed = BULLET_SPEED * 0.6; let pColor = COLOR_NEON_RED;
                 let projType: WeaponType = 'DEFAULT';
-                let specialProps: Partial<Projectile> = {};
-
-                // Special Attack Logic
-                if (shooter.type === 'dragon-phantom') {
-                    pColor = COLOR_NEON_PHANTOM; projType = 'SPECTRAL_ORB'; pSpeed = BULLET_SPEED * 0.4;
-                    pWidth = 10; pHeight = 10;
-                }
-                else if (shooter.type === 'dragon-hive') {
-                    pColor = COLOR_NEON_HIVE; projType = 'CLUSTER_BOMB'; pSpeed = BULLET_SPEED * 0.5;
-                    pWidth = 12; pHeight = 12;
-                }
-                else if (shooter.type === 'dragon-ironclad') {
-                    // Shotgun spread handled immediately
-                    [-0.5, 0, 0.5].forEach(dx => {
-                        projectilesRef.current.push({
-                            x: shooter.x + shooter.width / 2, y: shooter.y + shooter.height,
-                            width: 6, height: 8, dy: BULLET_SPEED * 0.7, dx: dx,
-                            color: COLOR_NEON_IRONCLAD, isEnemy: true, active: true
-                        });
-                    });
-                    playEnemyShoot();
-                    enemyFireCooldownRef.current = 40;
-                    return; // Skip default add
-                }
-                else if (shooter.type === 'dragon-chrono') {
-                    pColor = COLOR_NEON_CHRONO; projType = 'BOOMERANG'; pSpeed = BULLET_SPEED * 0.8;
-                    specialProps = { turnFrame: 60 };
-                }
-                else if (shooter.type === 'dragon-venom') {
-                    pColor = COLOR_NEON_VENOM; projType = 'ACID_SPRAY'; 
-                    // Spray logic
-                    for(let i=0; i<3; i++) {
-                         projectilesRef.current.push({
-                            x: shooter.x + shooter.width / 2, y: shooter.y + shooter.height,
-                            width: 5, height: 5, 
-                            dy: BULLET_SPEED * (0.5 + Math.random() * 0.3), 
-                            dx: (Math.random() - 0.5) * 2,
-                            color: COLOR_NEON_VENOM, isEnemy: true, active: true, projectileType: 'ACID_SPRAY'
-                        });
-                    }
-                    playEnemyShoot();
-                    enemyFireCooldownRef.current = 30;
-                    return;
-                }
                 
                 // Add Projectile
                 projectilesRef.current.push({
@@ -656,7 +565,6 @@ export const GameEngine: React.FC<GameEngineProps> = ({
                     width: pWidth, height: pHeight,
                     dy: pSpeed, color: pColor,
                     isEnemy: true, active: true, projectileType: projType,
-                    ...specialProps
                 });
 
                 playEnemyShoot();
@@ -686,33 +594,6 @@ export const GameEngine: React.FC<GameEngineProps> = ({
     // PROJECTILE UPDATES
     projectilesRef.current.forEach(p => {
          if (p.isEnemy && isTimeSlowed && frameCountRef.current % 3 !== 0) return;
-
-         // Special Projectile Behaviors
-         if (p.projectileType === 'SPECTRAL_ORB' && playerRef.current.active) {
-             // Homing
-             const dx = (playerRef.current.x + playerRef.current.width/2) - p.x;
-             p.x += dx * 0.02; // Steer towards X
-         }
-         else if (p.projectileType === 'BOOMERANG') {
-             if (p.turnFrame && p.turnFrame > 0) {
-                 p.turnFrame--;
-             } else {
-                 p.dy -= 0.2; // Decelerate and reverse
-             }
-         }
-         else if (p.projectileType === 'CLUSTER_BOMB') {
-             if (Math.random() < 0.02 && p.y < CANVAS_HEIGHT / 2) {
-                 p.active = false;
-                 // Split
-                 createExplosion(p.x, p.y, COLOR_NEON_HIVE, 5);
-                 [-1, 1].forEach(dx => {
-                     projectilesRef.current.push({
-                         x: p.x, y: p.y, width: 6, height: 6, dy: BULLET_SPEED * 0.7, dx: dx,
-                         color: COLOR_NEON_HIVE, isEnemy: true, active: true
-                     });
-                 });
-             }
-         }
 
          p.y += p.dy; if (p.dx) p.x += p.dx;
          if (p.rotation !== undefined) p.rotation += 0.1;
@@ -843,12 +724,7 @@ export const GameEngine: React.FC<GameEngineProps> = ({
     activeEnemies.forEach(e => {
         let color = COLOR_NEON_GREEN;
         // Map Colors
-        if (e.type === 'dragon-phantom') color = COLOR_NEON_PHANTOM;
-        else if (e.type === 'dragon-hive') color = COLOR_NEON_HIVE;
-        else if (e.type === 'dragon-ironclad') color = COLOR_NEON_IRONCLAD;
-        else if (e.type === 'dragon-chrono') color = COLOR_NEON_CHRONO;
-        else if (e.type === 'dragon-venom') color = COLOR_NEON_VENOM;
-        else if (e.type === 'dragon-red') color = COLOR_NEON_RED;
+        if (e.type === 'dragon-red') color = COLOR_NEON_RED;
         else if (e.type === 'dragon-gold') color = COLOR_NEON_GOLD;
         else if (e.type === 'dragon-blue') color = COLOR_NEON_BLUE;
         else if (e.type === 'dragon-brown') color = COLOR_NEON_BROWN;
@@ -870,12 +746,7 @@ export const GameEngine: React.FC<GameEngineProps> = ({
         let scale = 3;
 
         // Map Sprites
-        if (e.type === 'dragon-phantom') sprite = enemyAnimationToggleRef.current ? SPRITE_DRAGON_PHANTOM_1 : SPRITE_DRAGON_PHANTOM_2;
-        else if (e.type === 'dragon-hive') sprite = enemyAnimationToggleRef.current ? SPRITE_DRAGON_HIVE_1 : SPRITE_DRAGON_HIVE_2;
-        else if (e.type === 'dragon-ironclad') sprite = enemyAnimationToggleRef.current ? SPRITE_DRAGON_IRONCLAD_1 : SPRITE_DRAGON_IRONCLAD_2;
-        else if (e.type === 'dragon-chrono') sprite = enemyAnimationToggleRef.current ? SPRITE_DRAGON_CHRONO_1 : SPRITE_DRAGON_CHRONO_2;
-        else if (e.type === 'dragon-venom') sprite = enemyAnimationToggleRef.current ? SPRITE_DRAGON_VENOM_1 : SPRITE_DRAGON_VENOM_2;
-        else if (e.type === 'dragon-blue') sprite = enemyAnimationToggleRef.current ? SPRITE_DRAGON_BLUE : SPRITE_DRAGON_BLUE_2;
+        if (e.type === 'dragon-blue') sprite = enemyAnimationToggleRef.current ? SPRITE_DRAGON_BLUE : SPRITE_DRAGON_BLUE_2;
         else if (e.type === 'dragon-brown') sprite = enemyAnimationToggleRef.current ? SPRITE_DRAGON_BROWN : SPRITE_DRAGON_BROWN_2;
         else if (e.type === 'dragon-silver') sprite = enemyAnimationToggleRef.current ? SPRITE_DRAGON_SILVER : SPRITE_DRAGON_SILVER_2;
         else if (e.type === 'dragon-shadow') sprite = enemyAnimationToggleRef.current ? SPRITE_DRAGON_SHADOW : SPRITE_DRAGON_SHADOW_2;
@@ -1009,16 +880,6 @@ export const GameEngine: React.FC<GameEngineProps> = ({
         ctx.textAlign = 'center';
         ctx.fillText(`LEVEL ${gameStats.level}`, CANVAS_WIDTH/2, CANVAS_HEIGHT/2 + 10);
         ctx.textAlign = 'left';
-    }
-    
-    // Screen Shake Apply
-    if (screenShakeRef.current > 1) {
-        const dx = (Math.random() - 0.5) * screenShakeRef.current;
-        const dy = (Math.random() - 0.5) * screenShakeRef.current;
-        // We can't easily rotate the whole canvas context here without saving/restoring everything at top level
-        // But we can just offset the next frame or use CSS. 
-        // For simplicity in this engine, we won't shift context, but maybe logic updates already did visually?
-        // Actually best way is to translate context at start of drawFrame.
     }
   };
 

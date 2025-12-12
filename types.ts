@@ -18,8 +18,7 @@ export interface Entity extends Position {
   active: boolean;
 }
 
-export type WeaponType = 'DEFAULT' | 'LASER' | 'SPREAD' | 'EXPLOSIVE' | 'ELECTRIC_WEB' | 'ELECTRIC_LASER' | 'METEOR' | 'PIERCING' | 
-                         'SPECTRAL_ORB' | 'CLUSTER_BOMB' | 'BOOMERANG' | 'ACID_SPRAY';
+export type WeaponType = 'DEFAULT' | 'LASER' | 'SPREAD' | 'EXPLOSIVE' | 'ELECTRIC_WEB' | 'ELECTRIC_LASER' | 'METEOR' | 'PIERCING';
 
 export interface Player extends Entity {
   cooldown: number;
@@ -42,8 +41,7 @@ export interface Enemy extends Entity {
   id: string;
   row: number;
   col: number;
-  type: 'dragon-red' | 'dragon-green' | 'dragon-gold' | 'dragon-boss' | 'dragon-mech-boss' | 'dragon-electric-boss' | 'dragon-hydra-boss' | 'dragon-sorcerer-boss' | 'dragon-meteor-boss' | 'dragon-chef-boss' | 'dragon-blue' | 'dragon-brown' | 'dragon-silver' | 'dragon-shadow' | 'dragon-orange' | 'dragon-emerald' | 'dragon-amethyst' | 'dragon-frost' | 'dragon-obsidian' | 'dragon-crimson' |
-        'dragon-phantom' | 'dragon-hive' | 'dragon-ironclad' | 'dragon-chrono' | 'dragon-venom';
+  type: 'dragon-red' | 'dragon-green' | 'dragon-gold' | 'dragon-boss' | 'dragon-mech-boss' | 'dragon-electric-boss' | 'dragon-hydra-boss' | 'dragon-sorcerer-boss' | 'dragon-meteor-boss' | 'dragon-chef-boss' | 'dragon-blue' | 'dragon-brown' | 'dragon-silver' | 'dragon-shadow' | 'dragon-orange' | 'dragon-emerald' | 'dragon-amethyst' | 'dragon-frost' | 'dragon-obsidian' | 'dragon-crimson';
   state: 'GRID' | 'DIVING' | 'RETURNING' | 'PREPARE_CHARGE'; 
   animationFrame: number;
   health: number;
@@ -61,8 +59,6 @@ export interface Enemy extends Entity {
   meteorState?: 'OFF' | 'WARNING' | 'RAINING';
   meteorTimer?: number;
   meteorTargets?: number[];
-  // New Enemy Props
-  opacity?: number; // For Phantom
 }
 
 export interface Projectile extends Entity {
@@ -75,8 +71,6 @@ export interface Projectile extends Entity {
   rotation?: number;
   isPiercing?: boolean;
   hitEntityIds?: string[];
-  // Special behaviors
-  turnFrame?: number; // For Boomerang
 }
 
 export interface Particle extends Position {
